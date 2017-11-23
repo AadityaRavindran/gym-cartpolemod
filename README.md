@@ -5,7 +5,7 @@ adds a new 'do nothing' action.
 
 ## Installation
 
-Install the [OpenAI gym](https://gym.openai.com/docs/).
+Install [OpenAI gym](https://gym.openai.com/docs/).
 
 Then install this package via
 
