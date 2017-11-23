@@ -36,6 +36,6 @@ Some parameters for the cart-pole system:
 - Apoorva Sonavani
 - Rohith Krishna Gopi
 
-Special thanks to [MartinThoma](https://github.com/MartinThoma/banana-gym) and [Kevin Frans](https://github.com/kvfrans/openai-cartpole)
-
 This was created as a part of Prof. Jennie Si's class on Artificial Neural Computation (Fall 2017) at Arizona State University
+
+Special thanks to [MartinThoma](https://github.com/MartinThoma/banana-gym) and [Kevin Frans](https://github.com/kvfrans/openai-cartpole)
