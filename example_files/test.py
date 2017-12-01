@@ -55,6 +55,7 @@ def run_episode(env, policy_grad, value_grad, sess):
 
 
     for _ in range(200):
+        # env.render()
         # calculate policy
         obs_vector = np.expand_dims(observation, axis=0)
         probs = sess.run(pl_calculated,feed_dict={pl_state: obs_vector})

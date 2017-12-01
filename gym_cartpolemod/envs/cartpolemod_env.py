@@ -47,7 +47,7 @@ class CartPoleModEnv(gym.Env):
             self.theta_threshold_radians * 2,
             np.finfo(np.float32).max])
 
-        self.action_space = spaces.Discrete(3) # AA Set discrete states to 3 to incorporate no motion
+        self.action_space = spaces.Discrete(2) # AA Set discrete states back to 2
         self.observation_space = spaces.Box(-high, high)
 
         self._seed()
@@ -64,7 +64,7 @@ class CartPoleModEnv(gym.Env):
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         state = self.state
         x, x_dot, theta, theta_dot = state
-        force = self.force_mag if action==1 else -self.force_mag if action==2 else 0 # AA Compensated for 3 states (action==2 is the 'do nothing' action - No force)
+        force = self.force_mag if action==1 else -self.force_mag
         costheta = math.cos(theta)
         sintheta = math.sin(theta)
         temp = (force + self.polemass_length * theta_dot * theta_dot * sintheta - self.frictioncart*np.sign(x_dot)) / self.total_mass # AA Added cart friction
