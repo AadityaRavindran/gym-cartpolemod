@@ -10,7 +10,7 @@ Install [OpenAI gym](https://gym.openai.com/docs/).
 Then install this package via
 
 ```
-pip install -e .
+sudo pip install -e .
 ```
 
 ## Usage
