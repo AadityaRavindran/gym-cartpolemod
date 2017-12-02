@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import random
 import gym
 import numpy as np
@@ -12,7 +13,7 @@ EPISODES = 1000
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size,envName):
         self.state_size = state_size
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
@@ -22,6 +23,7 @@ class DQNAgent:
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
+        self.envName = envName
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -66,10 +68,11 @@ class DQNAgent:
     def save(self, name):
         self.model.save_weights(name)
 
-    def main(self,useMem,explore=True):
+    def main(self,useMem=False,explore=True):
+        fileName = "./save/"+self.envName+".h5"
         try:
             if useMem:
-                self.load("./save/cartpole-dqn.h5")
+                self.load(fileName)
                 print('\n\n\nLoaded Cartpole weights')
             if not explore:
                 self.set_epsilon(0.01)
@@ -99,18 +102,19 @@ class DQNAgent:
                         return e-100
 
                     if e % 100 == 0:
-                        print('\t\t\t[Episode {}] - Mean survival time over last 100 episodes was {} ticks. Scores: {}'.format(e, mean_score,len(scores)))
+                        print('\t\t\t[Episode {}] - Mean survival time over last 100 episodes was {} ticks. e: {}'.format(e, mean_score,self.epsilon))
                     break
             
             if len(self.memory) > batch_size:
                 self.replay(batch_size)
             if e % 10 == 0:
-                if useMem: self.save("./save/cartpole-dqn.h5")
+                if useMem: self.save(fileName)
 
 if __name__ == "__main__":
     print('Making CartpoleMod environment')
-    env = gym.make('CartPoleMod-v0')
+    envName = 'CartPoleMod-'+sys.argv[1]
+    env = gym.make(envName)
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
-    agent = DQNAgent(state_size, action_size)
-    agent.main(False)
+    agent = DQNAgent(state_size, action_size, envName)
+    agent.main(useMem=True)
