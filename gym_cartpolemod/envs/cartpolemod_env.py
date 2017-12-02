@@ -24,7 +24,7 @@ class CartPoleModEnv(gym.Env):
 
     def __init__(self,case=1):
         self.__version__ = "0.1.0"
-        print("CartPoleModEnv - Version {}".format(self.__version__))
+        print("CartPoleModEnv - Version {}, Noise case: {}".format(self.__version__,case))
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
@@ -32,12 +32,13 @@ class CartPoleModEnv(gym.Env):
         self.length = 0.5 # actually half the pole's length
         self.polemass_length = (self.masspole * self.length)
         self._seed()
-        if case>3:
-            case = 1
-            self.case = case
-        else:
+        if case<4:
+            self.force_mag = 10.0*(1+self.addnoise(case))
             self.case = 1
-        self.force_mag = 10.0*(1+self.actuatornoise(case)) 
+        else:
+            self.force_mag = 10.0
+            self.case = case
+         
         self.tau = 0.02  # seconds between state updates
         self.frictioncart = 5e-4 # AA Added cart friction
         self.frictionpole = 2e-6 # AA Added cart friction
@@ -61,7 +62,7 @@ class CartPoleModEnv(gym.Env):
 
         self.steps_beyond_done = None
 
-    def actuatornoise(self,x):
+    def addnoise(self,x):
         return {
         1 : 0,
         2 : self.np_random.uniform(low=-0.05, high=0.05, size=(1,)), #  5% actuator noise
@@ -86,8 +87,7 @@ class CartPoleModEnv(gym.Env):
         temp = (force + self.polemass_length * theta_dot * theta_dot * sintheta - self.frictioncart*np.sign(x_dot)) / self.total_mass # AA Added cart friction
         thetaacc = (self.gravity * sintheta - costheta* temp - self.frictionpole*theta_dot/self.polemass_length) / (self.length * (4.0/3.0 - self.masspole * costheta * costheta / self.total_mass)) # AA Added pole friction
         xacc  = temp - self.polemass_length * thetaacc * costheta / self.total_mass
-        noise = 0 
-
+        noise = self.addnoise(self.case) 
         x  = x + self.tau * x_dot + noise
         x_dot = x_dot + self.tau * xacc + noise
         theta = theta + self.tau * theta_dot + noise
