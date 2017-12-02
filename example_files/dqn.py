@@ -99,8 +99,7 @@ class DQNAgent:
                         return e-100
 
                     if e % 100 == 0:
-                        print('\t\t\t[Episode {}] - Mean survival time over last 100 episodes was {} ticks. Scores: {}'.format(e, mean_score,))
-
+                        print('\t\t\t[Episode {}] - Mean survival time over last 100 episodes was {} ticks. Scores: {}'.format(e, mean_score,len(scores)))
                     break
             
             if len(self.memory) > batch_size:
