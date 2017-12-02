@@ -88,10 +88,10 @@ class CartPoleModEnv(gym.Env):
         thetaacc = (self.gravity * sintheta - costheta* temp - self.frictionpole*theta_dot/self.polemass_length) / (self.length * (4.0/3.0 - self.masspole * costheta * costheta / self.total_mass)) # AA Added pole friction
         xacc  = temp - self.polemass_length * thetaacc * costheta / self.total_mass
         noise = self.addnoise(self.case) 
-        x  = x + self.tau * x_dot + noise
-        x_dot = x_dot + self.tau * xacc + noise
-        theta = theta + self.tau * theta_dot + noise
-        theta_dot = theta_dot + self.tau * thetaacc + noise
+        x  = (x + self.tau * x_dot)*(1+noise)
+        x_dot = (x_dot + self.tau * xacc)*(1+noise)
+        theta = (theta + self.tau * theta_dot)*(1+noise)
+        theta_dot = (theta_dot + self.tau * thetaacc)*(1+noise)
         self.state = (x,x_dot,theta,theta_dot)
         done =  x < -self.x_threshold \
                 or x > self.x_threshold \
