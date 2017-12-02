@@ -14,13 +14,20 @@ pip install -e .
 ```
 
 ## Usage
-
+Python usage:
 ```
 import gym
 import gym_cartpolemod
 
 env = gym.make('CartPoleMod-v0')
 ```
+Examples:
+Versions go from v0 through v6 for different noise scenarios
+```
+cd example_files
+python dqn.py v1
+```
+
 ## The Environment
 
 Some parameters for the cart-pole system:
