@@ -22,7 +22,7 @@ class CartPoleModEnv(gym.Env):
             'video.frames_per_second' : 50
     }
 
-    def __init__(self):
+    def __init__(self,case=1):
         self.__version__ = "0.1.0"
         print("CartPoleModEnv - Version {}".format(self.__version__))
         self.gravity = 9.8
@@ -31,7 +31,13 @@ class CartPoleModEnv(gym.Env):
         self.total_mass = (self.masspole + self.masscart)
         self.length = 0.5 # actually half the pole's length
         self.polemass_length = (self.masspole * self.length)
-        self.force_mag = 10.0
+        self._seed()
+        if case>3:
+            case = 1
+            self.case = case
+        else:
+            self.case = 1
+        self.force_mag = 10.0*(1+self.actuatornoise(case)) 
         self.tau = 0.02  # seconds between state updates
         self.frictioncart = 5e-4 # AA Added cart friction
         self.frictionpole = 2e-6 # AA Added cart friction
@@ -50,11 +56,21 @@ class CartPoleModEnv(gym.Env):
         self.action_space = spaces.Discrete(2) # AA Set discrete states back to 2
         self.observation_space = spaces.Box(-high, high)
 
-        self._seed()
         self.viewer = None
         self.state = None
 
         self.steps_beyond_done = None
+
+    def actuatornoise(self,x):
+        return {
+        1 : 0,
+        2 : self.np_random.uniform(low=-0.05, high=0.05, size=(1,)), #  5% actuator noise
+        3 : self.np_random.uniform(low=-0.10, high=0.10, size=(1,)), # 10% actuator noise
+        4 : self.np_random.uniform(low=-0.05, high=0.05, size=(1,)), #  5% sensor noise
+        5 : self.np_random.uniform(low=-0.10, high=0.10, size=(1,)), # 10% sensor noise
+        6 : self.np_random.normal(loc=0, scale=0.10, size=(1,)), #  5% sensor noise
+        7 : self.np_random.normal(loc=0, scale=0.20, size=(1,)), # 10% sensor noise
+    }.get(x,1)
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -70,10 +86,12 @@ class CartPoleModEnv(gym.Env):
         temp = (force + self.polemass_length * theta_dot * theta_dot * sintheta - self.frictioncart*np.sign(x_dot)) / self.total_mass # AA Added cart friction
         thetaacc = (self.gravity * sintheta - costheta* temp - self.frictionpole*theta_dot/self.polemass_length) / (self.length * (4.0/3.0 - self.masspole * costheta * costheta / self.total_mass)) # AA Added pole friction
         xacc  = temp - self.polemass_length * thetaacc * costheta / self.total_mass
-        x  = x + self.tau * x_dot
-        x_dot = x_dot + self.tau * xacc
-        theta = theta + self.tau * theta_dot
-        theta_dot = theta_dot + self.tau * thetaacc
+        noise = 0 
+
+        x  = x + self.tau * x_dot + noise
+        x_dot = x_dot + self.tau * xacc + noise
+        theta = theta + self.tau * theta_dot + noise
+        theta_dot = theta_dot + self.tau * thetaacc + noise
         self.state = (x,x_dot,theta,theta_dot)
         done =  x < -self.x_threshold \
                 or x > self.x_threshold \

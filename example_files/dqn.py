@@ -29,9 +29,14 @@ class DQNAgent:
         model.add(Dense(24, input_dim=self.state_size, activation='relu'))
         model.add(Dense(24, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
+        print('Compiling Neural Network...')
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
         return model
+
+    def set_epsilon(self,epsilon):
+        # Set exploration rate
+        self.epsilon = epsilon
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -61,32 +66,52 @@ class DQNAgent:
     def save(self, name):
         self.model.save_weights(name)
 
+    def main(self,useMem,explore=True):
+        try:
+            if useMem:
+                self.load("./save/cartpole-dqn.h5")
+                print('\n\n\nLoaded Cartpole weights')
+            if not explore:
+                self.set_epsilon(0.01)
+        except:
+            pass
+        done = False
+        batch_size = 32
+        scores = deque(maxlen=100)
+
+        for e in range(EPISODES):
+            state = env.reset()
+            state = np.reshape(state, [1, state_size])
+            for time in range(500):
+                # env.render()
+                action = self.act(state)
+                next_state, reward, done, _ = env.step(action)
+                reward = reward if not done else -10
+                next_state = np.reshape(next_state, [1, state_size])
+                self.remember(state, action, reward, next_state, done)
+                state = next_state
+                if done:
+                    scores.append(time)
+                    mean_score = np.mean(scores)
+                    # print("episode: {}/{}, score: {}, mean_score: {}, e: {:.2}".format(e, EPISODES, time, mean_score, agent.epsilon))
+                    if mean_score >= 200 and e >= 100:
+                        print('\t\t\tRan {} episodes. Solved after {} trials ✔'.format(e, e - 100))
+                        return e-100
+
+                    if e % 100 == 0:
+                        print('\t\t\t[Episode {}] - Mean survival time over last 100 episodes was {} ticks. Scores: {}'.format(e, mean_score,))
+
+                    break
+            
+            if len(self.memory) > batch_size:
+                self.replay(batch_size)
+            if e % 10 == 0:
+                if useMem: self.save("./save/cartpole-dqn.h5")
 
 if __name__ == "__main__":
+    print('Making CartpoleMod environment')
     env = gym.make('CartPoleMod-v0')
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
     agent = DQNAgent(state_size, action_size)
-    # agent.load("./save/cartpole-dqn.h5")
-    done = False
-    batch_size = 32
-
-    for e in range(EPISODES):
-        state = env.reset()
-        state = np.reshape(state, [1, state_size])
-        for time in range(500):
-            # env.render()
-            action = agent.act(state)
-            next_state, reward, done, _ = env.step(action)
-            reward = reward if not done else -10
-            next_state = np.reshape(next_state, [1, state_size])
-            agent.remember(state, action, reward, next_state, done)
-            state = next_state
-            if done:
-                print("episode: {}/{}, score: {}, e: {:.2}"
-                      .format(e, EPISODES, time, agent.epsilon))
-                break
-        if len(agent.memory) > batch_size:
-            agent.replay(batch_size)
-        # if e % 10 == 0:
-        #     agent.save("./save/cartpole-dqn.h5")
+    agent.main(False)
