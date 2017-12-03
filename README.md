@@ -25,7 +25,7 @@ Examples:
 Versions go from v0 through v6 for different noise scenarios
 ```
 cd example_files
-python dqn.py v1
+python deepQNetwork.py v1
 ```
 
 ## The Environment
@@ -37,6 +37,15 @@ Some parameters for the cart-pole system:
 - magnitude of the force = 10.0
 - friction at the cart = 5e-4
 - friction at the pole = 2e-6
+
+Noise cases(v0 to v6):
+- v0: Noise free
+- v1: 5%  Uniform Actuator noise
+- v2: 10% Uniform Actuator noise
+- v3: 5%  Uniform Sensor noise
+- v4: 10% Uniform Sensor noise
+- v5: 5%  Gaussian Sensor noise
+- v6: 10% Gaussian Sensor noise
 
 ## The team
 - Aaditya Ravindran
