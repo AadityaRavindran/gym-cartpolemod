@@ -107,7 +107,7 @@ class DQNAgent:
 							print('Run:{} Trial:{}, Mean score: {}'.format(run,trial,np.mean(scores)))
 						break
 					elif time== TIME_STEPS/10:
-						print('It\'s gonna be a great trial! Hope Trial#:{} goes on!'.format(trial))
+						print('It\'s gonna be a great trial! Ran {} times already! Hope Trial#{} goes on!'.format(TIME_STEPS/10,trial))
 					elif time>=(TIME_STEPS-1):
 						scores.append(time)
 						print('Woah!!!!')
