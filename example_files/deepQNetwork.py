@@ -12,7 +12,7 @@ import gym_cartpolemod
 TIME_STEPS = 600000
 TRIALS = 1000
 RUNS = 100
-success_score = 6000
+success_score = 60000
 
 
 class DQNAgent:
@@ -73,22 +73,17 @@ class DQNAgent:
 	def save(self, name):
 		self.model.save_weights(name)
 
-	def main(self,useMem=False,explore=True):
-		fileName = "./save/"+self.envName+".h5"
-		try:
-			if useMem:
-				self.load(fileName)
-				print('\n\n\nLoaded Cartpole weights')
-			if not explore:
-				self.set_epsilon(0.01)
-		except:
-			pass
+	def main(self,explore=True):
+		if not explore:
+			self.set_epsilon(0.01)
 		done = False
 		batch_size = 32
 		trial_score = deque(maxlen = RUNS)
+		run_success = deque(maxlen = RUNS)
 		total_success = 0
 		for run in range(1,RUNS+1):
-			scores = deque(maxlen = 20)
+			self.set_epsilon(1.0)
+			scores = deque(maxlen = 100)
 			success = 0
 			for trial in range(1,TRIALS+1):
 				state = env.reset()
@@ -105,23 +100,26 @@ class DQNAgent:
 					if done:
 						scores.append(time)
 						if trial%100 ==0:
-							print('Trial: {}, Mean score: {}, epsilon: {}'.format(trial,np.mean(scores),self.epsilon))
+							print('Run:{} Trial:{}, Mean score: {}'.format(run,trial,np.mean(scores)))
 						break
+					elif time== TIME_STEPS/10:
+						print('It\'s gonna be a great trial! Hope Trial#:{} goes on!'.format(trial))
 					elif time>=(TIME_STEPS-1):
 						scores.append(time)
 						print('Woah!!!!')
-						print('Trial: {}, Time: {}, epsilon: {}'.format(trial,time,self.epsilon))
+						print('Run:{} Trial:{}, Time: {}'.format(run,trial,time))
 				try:
 					mean_score = np.mean(scores)#[len(scores)-1]
 				except:
 					mean_score = 0
-				if mean_score > success_score:
+				if mean_score >= success_score:
 					trial_score.append(trial)
 					success = 1
 					print('Successful trial. Run#:{}'.format(run))
 					break
 				if len(self.memory) > batch_size:
 					self.replay(batch_size)
+			run_success.append(success)
 			mean_trial = np.mean(trial_score)
 			total_success += success
 			if success==0:
@@ -139,4 +137,4 @@ if __name__ == "__main__":
 	state_size = env.observation_space.shape[0]
 	action_size = env.action_space.n
 	agent = DQNAgent(state_size, action_size, envName)
-	agent.main(useMem=True)
+	agent.main()
