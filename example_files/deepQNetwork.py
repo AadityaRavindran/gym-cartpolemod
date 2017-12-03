@@ -12,7 +12,7 @@ import gym_cartpolemod
 TIME_STEPS = 600000
 TRIALS = 1000
 RUNS = 100
-success_score = TIME_STEPS-100
+success_score = 6000
 
 
 class DQNAgent:
@@ -48,8 +48,9 @@ class DQNAgent:
 		self.memory.append((state, action, reward, next_state, done))
 
 	def act(self, state):
-		if np.random.rand() <= self.epsilon:
-			return random.randrange(self.action_size)
+		if self.epsilon > 0.01:
+			if np.random.rand() <= self.epsilon:
+				return random.randrange(self.action_size)
 		act_values = self.model.predict(state)
 		return np.argmax(act_values[0])  # returns action
 
@@ -87,7 +88,7 @@ class DQNAgent:
 		trial_score = deque(maxlen = RUNS)
 		total_success = 0
 		for run in range(1,RUNS+1):
-			scores = deque(maxlen = TRIALS)
+			scores = deque(maxlen = 20)
 			success = 0
 			for trial in range(1,TRIALS+1):
 				state = env.reset()
@@ -103,9 +104,17 @@ class DQNAgent:
 					state = next_state
 					if done:
 						scores.append(time)
-						print('Trial: {}, Mean score: {}, epsilon: {}'.format(trial,time,self.epsilon))
+						if trial%100 ==0:
+							print('Trial: {}, Mean score: {}, epsilon: {}'.format(trial,np.mean(scores),self.epsilon))
 						break
-				mean_score = scores[len(scores)-1]
+					elif time>=(TIME_STEPS-1):
+						scores.append(time)
+						print('Woah!!!!')
+						print('Trial: {}, Time: {}, epsilon: {}'.format(trial,time,self.epsilon))
+				try:
+					mean_score = np.mean(scores)#[len(scores)-1]
+				except:
+					mean_score = 0
 				if mean_score > success_score:
 					trial_score.append(trial)
 					success = 1
@@ -126,7 +135,7 @@ if __name__ == "__main__":
 	print('Making CartpoleMod environment')
 	envName = 'CartPoleMod-'+sys.argv[1]
 	env = gym.make(envName)
-	# env._max_episode_steps = TIME_STEPS
+	env._max_episode_steps = TIME_STEPS
 	state_size = env.observation_space.shape[0]
 	action_size = env.action_space.n
 	agent = DQNAgent(state_size, action_size, envName)

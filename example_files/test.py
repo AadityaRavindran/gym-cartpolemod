@@ -4,8 +4,13 @@ import random
 import gym
 import math
 import matplotlib.pyplot as plt
+from collections import deque
 import gym_cartpolemod
 
+TIME_STEPS = 600000
+TRIALS = 1000
+RUNS = 100
+success_score = 6000
 
 def softmax(x):
     e_x = np.exp(x - np.max(x))
@@ -54,7 +59,7 @@ def run_episode(env, policy_grad, value_grad, sess):
     update_vals = []
 
 
-    for _ in range(200):
+    for _ in range(TIME_STEPS):
         # env.render()
         # calculate policy
         obs_vector = np.expand_dims(observation, axis=0)
@@ -104,18 +109,35 @@ def run_episode(env, policy_grad, value_grad, sess):
 
 
 env = gym.make('CartPoleMod-v0')
+env._max_episode_steps = TIME_STEPS
 policy_grad = policy_gradient()
 value_grad = value_gradient()
 sess = tf.InteractiveSession()
 sess.run(tf.initialize_all_variables())
-for i in range(2000):
-    reward = run_episode(env, policy_grad, value_grad, sess)
-    if reward == 200:
-        print("reward 200")
-        print(i)
-        break
-t = 0
-for _ in range(1000):
-    reward = run_episode(env, policy_grad, value_grad, sess)
-    t += reward
-print(t / 1000)
+
+trial_score = deque(maxlen = RUNS)
+total_success = 0
+for run in range(1,RUNS+1):
+    scores = deque(maxlen = 20)
+    success = 0
+    for trial in range(1,TRIALS+1):
+        total_reward = 0
+        reward = run_episode(env, policy_grad, value_grad, sess)
+        scores.append(reward)
+        if trial%100==0: print('Trial: {} reward: {}'.format(trial,reward))
+        try:
+            mean_score = np.mean(scores)
+        except:
+            mean_score = 0
+        if mean_score > success_score:
+            trial_score.append(trial)
+            success = 1
+            print('Successful trial. Run#:{} Score: {}'.format(run,mean_score))
+            
+    mean_trial = np.mean(trial_score)
+    total_success += success
+    if success==0:
+        print('Failed Run#:{}'.format(run))
+    else:
+        print('Successful run#: {} Average trial#: {}'.format(run,mean_trial))
+print('\n\n\n\n\n\nSuccess Rate:{}% #Trials: {}'.format(total_success,mean_trial))
