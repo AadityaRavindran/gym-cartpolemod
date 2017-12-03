@@ -10,12 +10,11 @@ from keras.optimizers import Adam
 import gym_cartpolemod
 
 TIME_STEPS = 600000
-TRIALS = 1000
+TRIALS = 2000
 RUNS = 100
-success_score = 60000
 
 
-class DQNAgent:
+class deepQNetwork:
 	def __init__(self, state_size, action_size,envName):
 
 		self.state_size = state_size
@@ -24,20 +23,19 @@ class DQNAgent:
 		self.gamma = 0.95	# discount rate
 		self.epsilon = 1.0  # exploration rate
 		self.epsilon_min = 0.01
-		self.epsilon_decay = 0.8
-		self.learning_rate = 0.001
+		self.epsilon_decay = 0.9
+		self.learning_rate = 0.01
 		self.model = self._build_model()
 		self.envName = envName
 
 	def _build_model(self):
 		# Neural Net for Deep-Q learning Model
 		model = Sequential()
-		model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-		model.add(Dense(24, activation='relu'))
+		model.add(Dense(24, input_dim=self.state_size, activation='tanh'))
+		model.add(Dense(48, activation='tanh'))
 		model.add(Dense(self.action_size, activation='linear'))
 		print('Compiling Neural Network...')
-		model.compile(loss='mse',
-					  optimizer=Adam(lr=self.learning_rate))
+		model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
 		return model
 
 	def set_epsilon(self,epsilon):
@@ -64,25 +62,18 @@ class DQNAgent:
 		for state, action, reward, next_state, done in minibatch:
 			target = reward
 			if not done:
-				target = (reward + self.gamma *
-						  np.amax(self.model.predict(next_state)[0]))
+				target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
 			target_f = self.model.predict(state)
 			target_f[0][action] = target
 			self.model.fit(state, target_f, epochs=1, verbose=0)
 		if self.epsilon > self.epsilon_min:
 			self.epsilon *= self.epsilon_decay
 
-	def load(self, name):
-		self.model.load_weights(name)
-
-	def save(self, name):
-		self.model.save_weights(name)
-
 	def main(self,explore=True):
 		if not explore:
 			self.set_epsilon(0.01)
 		done = False
-		batch_size = 32
+		batch_size = 64
 		trial_score = deque(maxlen = RUNS)
 		run_success = deque(maxlen = RUNS)
 		total_success = 0
@@ -105,14 +96,14 @@ class DQNAgent:
 					if done:
 						scores.append(time)
 						if trial%100 ==0:
-							print('Run:{} Trial:{}, Mean score: {}'.format(run,trial,np.mean(scores)))
+							print('Run:{} Trial:{}, Mean score over 100 trials: {}'.format(run,trial,np.mean(scores)))
 						break
 					elif time== TIME_STEPS/10:
 						print('It\'s gonna be a great trial! Ran {} times already! Hope Trial#{} goes on!'.format(TIME_STEPS/10,trial))
 					elif time>=(TIME_STEPS-1):
 						scores.append(time)
 						print('Woah!!!!')
-						print('Run:{} Trial:{}, Time: {}'.format(run,trial,time))
+						print('Run:{} Trial:{}, Time: {}'.format(run,trial,time+1))
 						success = 1
 						break
 				try:
@@ -132,9 +123,9 @@ class DQNAgent:
 				mean_trial = 0
 			total_success += success
 			if success==0:
-				print('Failed Run#:{}'.format(run))
+				print('\t\t\t\tFailed Run#:{}'.format(run))
 			else:
-				print('Successful run#: {} Average trial#: {}'.format(run,mean_trial))
+				print('Successful run#: {} Average trial#: {} Successes till now:{}'.format(run,mean_trial,total_success))
 		print('\n\n\n\n\n\nSuccess Rate:{}% #Trials: {}'.format(total_success,mean_trial))
 
 
@@ -145,5 +136,5 @@ if __name__ == "__main__":
 	env._max_episode_steps = TIME_STEPS
 	state_size = env.observation_space.shape[0]
 	action_size = env.action_space.n
-	agent = DQNAgent(state_size, action_size, envName)
+	agent = deepQNetwork(state_size, action_size, envName)
 	agent.main()
