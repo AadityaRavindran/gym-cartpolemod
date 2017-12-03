@@ -47,6 +47,7 @@ class DQNAgent:
 	def reset_memory(self):
 		self.memory = deque(maxlen=2000)
 		self.set_epsilon(1.0)
+		self.model = self._build_model()
 
 	def remember(self, state, action, reward, next_state, done):
 		self.memory.append((state, action, reward, next_state, done))
