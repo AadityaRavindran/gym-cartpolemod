@@ -9,11 +9,15 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 import gym_cartpolemod
 
-EPISODES = 1000
+TIME_STEPS = 600000
+TRIALS = 1000
+RUNS = 100
+success_score = 200
 
 
 class DQNAgent:
 	def __init__(self, state_size, action_size,envName):
+
 		self.state_size = state_size
 		self.action_size = action_size
 		self.memory = deque(maxlen=2000)
@@ -80,40 +84,48 @@ class DQNAgent:
 			pass
 		done = False
 		batch_size = 32
-		scores = deque(maxlen=100)
-
-		for e in range(EPISODES):
-			state = env.reset()
-			state = np.reshape(state, [1, state_size])
-			for time in range(500):
-				# env.render()
-				action = self.act(state)
-				next_state, reward, done, _ = env.step(action)
-				reward = reward if not done else -10
-				next_state = np.reshape(next_state, [1, state_size])
-				self.remember(state, action, reward, next_state, done)
-				state = next_state
-				if done:
-					scores.append(time)
-					mean_score = np.mean(scores)
-					# print("episode: {}/{}, score: {}, mean_score: {}, e: {:.2}".format(e, EPISODES, time, mean_score, agent.epsilon))
-					if mean_score >= 200 and e >= 100:
-						print('\t\t\tRan {} episodes. Solved after {} trials ✔'.format(e, e - 100))
-						return e-100
-
-					if e % 100 == 0:
-						print('\t\t\t[Episode {}] - Mean survival time over last 100 episodes was {} ticks. e: {}'.format(e, mean_score,self.epsilon))
+		trial_score = deque(maxlen = RUNS)
+		total_success = 0
+		for run in range(1,RUNS+1):
+			scores = deque(maxlen = TRIALS)
+			success = 0
+			for trial in range(1,TRIALS+1):
+				state = env.reset()
+				state = np.reshape(state, [1, state_size])
+				total_reward = 0
+				for time in range(TIME_STEPS):
+					# env.render()
+					action = self.act(state)
+					next_state, reward, done, _ = env.step(action)
+					reward = reward if not done else -10
+					next_state = np.reshape(next_state, [1, state_size])
+					self.remember(state, action, reward, next_state, done)
+					state = next_state
+					if len(self.memory) > batch_size:
+						self.replay(batch_size)
+					if done:
+						scores.append(time)
+						# print('Trial: {}, Mean score: {}, epsilon: {}'.format(trial,np.mean(scores),self.epsilon))
+						break
+				mean_score = np.mean(scores)
+				if mean_score > success_score:
+					trial_score.append(trial)
+					success = 1
+					print('Successful trial. Run#:{}'.format(run))
 					break
-			
-			if len(self.memory) > batch_size:
-				self.replay(batch_size)
-			if e % 10 == 0:
-				if useMem: self.save(fileName)
+			mean_trial = np.mean(trial_score)
+			total_success += success
+			if success==0:
+				print('Failed Run#:{}'.format(run))
+			else:
+				print('Successful run#: {} Average trial#: {}'.format(run,mean_trials))
+
 
 if __name__ == "__main__":
 	print('Making CartpoleMod environment')
 	envName = 'CartPoleMod-'+sys.argv[1]
 	env = gym.make(envName)
+	# env._max_episode_steps = TIME_STEPS
 	state_size = env.observation_space.shape[0]
 	action_size = env.action_space.n
 	agent = DQNAgent(state_size, action_size, envName)
