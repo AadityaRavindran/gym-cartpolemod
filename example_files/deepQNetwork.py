@@ -44,6 +44,10 @@ class DQNAgent:
 		# Set exploration rate
 		self.epsilon = epsilon
 
+	def reset_memory(self):
+		self.memory = deque(maxlen=2000)
+		self.set_epsilon(1.0)
+
 	def remember(self, state, action, reward, next_state, done):
 		self.memory.append((state, action, reward, next_state, done))
 
@@ -82,7 +86,7 @@ class DQNAgent:
 		run_success = deque(maxlen = RUNS)
 		total_success = 0
 		for run in range(1,RUNS+1):
-			self.set_epsilon(1.0)
+			self.reset_memory()
 			scores = deque(maxlen = 100)
 			success = 0
 			for trial in range(1,TRIALS+1):
@@ -108,19 +112,23 @@ class DQNAgent:
 						scores.append(time)
 						print('Woah!!!!')
 						print('Run:{} Trial:{}, Time: {}'.format(run,trial,time))
+						success = 1
+						break
 				try:
 					mean_score = np.mean(scores)#[len(scores)-1]
 				except:
 					mean_score = 0
-				if mean_score >= success_score:
+				if success==1:
 					trial_score.append(trial)
-					success = 1
 					print('Successful trial. Run#:{}'.format(run))
 					break
 				if len(self.memory) > batch_size:
 					self.replay(batch_size)
 			run_success.append(success)
-			mean_trial = np.mean(trial_score)
+			try:
+				mean_trial = np.mean(trial_score)
+			except:
+				mean_trial = 0
 			total_success += success
 			if success==0:
 				print('Failed Run#:{}'.format(run))
