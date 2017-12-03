@@ -12,7 +12,7 @@ import gym_cartpolemod
 TIME_STEPS = 600000
 TRIALS = 1000
 RUNS = 100
-success_score = 200
+success_score = TIME_STEPS-100
 
 
 class DQNAgent:
@@ -24,7 +24,7 @@ class DQNAgent:
 		self.gamma = 0.95	# discount rate
 		self.epsilon = 1.0  # exploration rate
 		self.epsilon_min = 0.01
-		self.epsilon_decay = 0.995
+		self.epsilon_decay = 0.8
 		self.learning_rate = 0.001
 		self.model = self._build_model()
 		self.envName = envName
@@ -101,24 +101,25 @@ class DQNAgent:
 					next_state = np.reshape(next_state, [1, state_size])
 					self.remember(state, action, reward, next_state, done)
 					state = next_state
-					if len(self.memory) > batch_size:
-						self.replay(batch_size)
 					if done:
 						scores.append(time)
-						# print('Trial: {}, Mean score: {}, epsilon: {}'.format(trial,np.mean(scores),self.epsilon))
+						print('Trial: {}, Mean score: {}, epsilon: {}'.format(trial,time,self.epsilon))
 						break
-				mean_score = np.mean(scores)
+				mean_score = scores[len(scores)-1]
 				if mean_score > success_score:
 					trial_score.append(trial)
 					success = 1
 					print('Successful trial. Run#:{}'.format(run))
 					break
+				if len(self.memory) > batch_size:
+					self.replay(batch_size)
 			mean_trial = np.mean(trial_score)
 			total_success += success
 			if success==0:
 				print('Failed Run#:{}'.format(run))
 			else:
-				print('Successful run#: {} Average trial#: {}'.format(run,mean_trials))
+				print('Successful run#: {} Average trial#: {}'.format(run,mean_trial))
+		print('\n\n\n\n\n\nSuccess Rate:{}% #Trials: {}'.format(total_success,mean_trial))
 
 
 if __name__ == "__main__":
