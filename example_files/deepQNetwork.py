@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+start_time = datetime.now()
 import sys
 import random
 import gym
@@ -12,7 +14,7 @@ import gym_cartpolemod
 TIME_STEPS = 60000
 TRIALS = 1000
 RUNS = 100
-np.random.seed(10)
+# np.random.seed(10)
 
 
 class deepQNetwork:
@@ -127,7 +129,7 @@ class deepQNetwork:
 				print('\t\t\t\tFailed Run#:{}'.format(run))
 			else:
 				print('Successful run#: {} Average trial#: {} Successes till now:{}'.format(run,mean_trial,total_success))
-		print('\n\n\n\n\n\nSuccess Rate:{}% #Trials: {}'.format(total_success,mean_trial))
+		print('\n\n\n\n\n\nSuccess Rate:{}% #Trials: {}'.format(total_success/RUNS*100,mean_trial))
 
 
 if __name__ == "__main__":
@@ -139,3 +141,4 @@ if __name__ == "__main__":
 	action_size = env.action_space.n
 	agent = deepQNetwork(state_size, action_size, envName)
 	agent.main()
+	print('---------Execution time: {} ------------'.format(datetime.now()-start_time))
