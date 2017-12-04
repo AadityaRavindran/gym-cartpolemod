@@ -3,7 +3,7 @@
 Classic cart-pole system implemented by Rich Sutton et al.
 Copied from http://incompleteideas.net/sutton/book/code/pole.c
 permalink: https://perma.cc/C9ZM-652R
-Modified by Aaditya Ravindran to include friction and added 'do nothing' action
+Modified by Aaditya Ravindran to include friction and random sensor & actuator noise
 """
 
 import logging
@@ -23,7 +23,7 @@ class CartPoleModEnv(gym.Env):
 	}
 
 	def __init__(self,case=1):
-		self.__version__ = "0.1.0"
+		self.__version__ = "0.2.0"
 		print("CartPoleModEnv - Version {}, Noise case: {}".format(self.__version__,case))
 		self.gravity = 9.8
 		self.masscart = 1.0
