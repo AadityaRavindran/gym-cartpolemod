@@ -1,6 +1,5 @@
 This repository contains a PIP package which is a modified version of the 
-CartPole-v0 OpenAI environment which includes cart and pole friction and also
-adds a new 'do nothing' action.
+CartPole-v0 OpenAI environment which includes cart and pole friction.
 
 
 ## Installation
