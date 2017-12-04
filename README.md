@@ -43,8 +43,8 @@ Noise cases(v0 to v6):
 - v2: 10% Uniform Actuator noise
 - v3: 5%  Uniform Sensor noise
 - v4: 10% Uniform Sensor noise
-- v5: 5%  Gaussian Sensor noise
-- v6: 10% Gaussian Sensor noise
+- v5: 0.1 var Gaussian Sensor noise
+- v6: 0.2 var Gaussian Sensor noise
 
 Some Neural network parameters:
 - Discount rate     : gamma = 0.95

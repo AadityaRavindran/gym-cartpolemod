@@ -69,8 +69,8 @@ class CartPoleModEnv(gym.Env):
 		3 : self.np_random.uniform(low=-0.10, high=0.10, size=(1,)), # 10% actuator noise
 		4 : self.np_random.uniform(low=-0.05, high=0.05, size=(1,)), #  5% sensor noise
 		5 : self.np_random.uniform(low=-0.10, high=0.10, size=(1,)), # 10% sensor noise
-		6 : self.np_random.normal(loc=0, scale=0.10, size=(1,)), #  5% sensor noise
-		7 : self.np_random.normal(loc=0, scale=0.20, size=(1,)), # 10% sensor noise
+		6 : self.np_random.normal(loc=0, scale=np.sqrt(0.10), size=(1,)), # 0.1 var sensor noise
+		7 : self.np_random.normal(loc=0, scale=np.sqrt(0.20), size=(1,)), # 0.2 var sensor noise
 	}.get(x,1)
 
 	def _seed(self, seed=None):
@@ -88,10 +88,10 @@ class CartPoleModEnv(gym.Env):
 		thetaacc = (self.gravity * sintheta - costheta* temp - self.frictionpole*theta_dot/self.polemass_length) / (self.length * (4.0/3.0 - self.masspole * costheta * costheta / self.total_mass)) # AA Added pole friction
 		xacc  = temp - self.polemass_length * thetaacc * costheta / self.total_mass
 		noise = self.addnoise(self.case) 
-		x  = (x + self.tau * x_dot)*(1 + noise)
-		x_dot = (x_dot + self.tau * xacc)*(1 + noise)
+		x  = (x + self.tau * x_dot)
+		x_dot = (x_dot + self.tau * xacc)
 		theta = (theta + self.tau * theta_dot)*(1 + noise)
-		theta_dot = (theta_dot + self.tau * thetaacc)*(1 + noise)
+		theta_dot = (theta_dot + self.tau * thetaacc)
 		self.state = (x,x_dot,theta,theta_dot)
 		done =  x < -self.x_threshold \
 				or x > self.x_threshold \
