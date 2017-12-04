@@ -81,8 +81,8 @@ Notations:
 |v2|10% Uniform Actuator Noise|100%|130.47|~ 4.5 hours|
 |v3|5% Uniform Sensor Noise|100%|123.93|~ 5.5 hours|
 |v4|10% Uniform Sensor Noise|100%|133.67|~ 5.5 hours|
-|v5|\sigma^2 = 0.1 Gaussian Sensor Noise|100%|179.36|~ 6.5 hours|
-|v6|\sigma^2 = 0.2 Gaussian Sensor Noise|98%|209.68|~ 7.5 hours|
+|v5|{\sigma<tab>}^2 = 0.1 Gaussian Sensor Noise|100%|179.36|~ 6.5 hours|
+|v6|{\sigma<tab>}^2 = 0.2 Gaussian Sensor Noise|98%|209.68|~ 7.5 hours|
 
 ## The team
 - Aaditya Ravindran
