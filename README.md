@@ -55,6 +55,7 @@ Some Neural network parameters:
 - NN Hidden layer	: 48 neurons, tanh activation function
 - NN Output layer	: 2 neurons, linear activation function
 - MSE loss function with Adam Optimizer
+- Seed				: 10 (Both in deepQNetwork and cartpolemod_env)
 
 Notations:
 - 1 run	      	  : 1000 trials

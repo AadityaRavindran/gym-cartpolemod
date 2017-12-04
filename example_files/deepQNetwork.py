@@ -12,6 +12,7 @@ import gym_cartpolemod
 TIME_STEPS = 60000
 TRIALS = 1000
 RUNS = 100
+np.random.seed(10)
 
 
 class deepQNetwork:
