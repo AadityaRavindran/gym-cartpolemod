@@ -9,8 +9,8 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 import gym_cartpolemod
 
-TIME_STEPS = 600000
-TRIALS = 2000
+TIME_STEPS = 60000
+TRIALS = 1000
 RUNS = 100
 
 

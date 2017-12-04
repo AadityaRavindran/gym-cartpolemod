@@ -47,6 +47,25 @@ Noise cases(v0 to v6):
 - v5: 5%  Gaussian Sensor noise
 - v6: 10% Gaussian Sensor noise
 
+Some Neural network parameters:
+- Discount rate     : gamma = 0.95
+- Exploration rate  : epsilon = 1.0
+- Exploration decay : 90%
+- Learning rate 	: 0.01
+- NN Input layer	: 24 neurons, tanh activation function
+- NN Hidden layer	: 48 neurons, tanh activation function
+- NN Output layer	: 2 neurons, linear activation function
+- MSE loss function with Adam Optimizer
+
+Notations:
+- 1 run	      	  : 1000 trials
+- 1 trials    	  : 60,000 time steps
+- 1 time step 	  : 0.02s
+- Success rate	  : successful runs for 100 runs
+- Successful trial: System lasts 60k time steps without failing
+- Successful run  : Atleast one successful trial in 1000 trials
+- Average trial#  : Mean trials to successful trial over multiple runs  
+
 ## The team
 - Aaditya Ravindran
 - Apoorva Sonavani
