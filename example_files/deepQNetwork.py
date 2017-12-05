@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-start_time = datetime.now()
+start_time = datetime.now() # Start timing the program
 import sys
 import random
 import gym
@@ -9,12 +9,12 @@ from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-import gym_cartpolemod
+import gym_cartpolemod # Import modded version of cartpole
 
 TIME_STEPS = 60000
 TRIALS = 1000
 RUNS = 100
-# np.random.seed(10)
+# np.random.seed(10) # Set appropriate seed value
 
 
 class deepQNetwork:
@@ -46,14 +46,17 @@ class deepQNetwork:
 		self.epsilon = epsilon
 
 	def reset_memory(self):
+		# Reset memory and rebuild the neural network
 		self.memory = deque(maxlen=2000)
 		self.set_epsilon(1.0)
 		self.model = self._build_model()
 
 	def remember(self, state, action, reward, next_state, done):
+		# Save the states for the Q function(target)
 		self.memory.append((state, action, reward, next_state, done))
 
 	def act(self, state):
+		# Take random action if epsilon is high, else, take action based on the predicted states
 		if self.epsilon > 0.01:
 			if np.random.rand() <= self.epsilon:
 				return random.randrange(self.action_size)
@@ -61,6 +64,7 @@ class deepQNetwork:
 		return np.argmax(act_values[0])  # returns action
 
 	def replay(self, batch_size):
+		# Calculate the Q function (Target) for the saved states
 		minibatch = random.sample(self.memory, batch_size)
 		for state, action, reward, next_state, done in minibatch:
 			target = reward
@@ -68,36 +72,42 @@ class deepQNetwork:
 				target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
 			target_f = self.model.predict(state)
 			target_f[0][action] = target
-			self.model.fit(state, target_f, epochs=1, verbose=0)
+			self.model.fit(state, target_f, epochs=1, verbose=0) # Train the model for each state
+		# Update the exploration rate for every trial/episode
 		if self.epsilon > self.epsilon_min:
 			self.epsilon *= self.epsilon_decay
 
 	def main(self,explore=True):
+		# Do not explore if explore=False
 		if not explore:
 			self.set_epsilon(0.01)
+		# Initialize parameters
 		done = False
 		batch_size = 64
 		trial_score = deque(maxlen = RUNS)
 		run_success = deque(maxlen = RUNS)
 		total_success = 0
 		for run in range(1,RUNS+1):
+			# Reset memory for every run
 			self.reset_memory()
 			scores = deque(maxlen = 100)
 			success = 0
 			for trial in range(1,TRIALS+1):
+				# Reset states for each trial
 				state = env.reset()
 				state = np.reshape(state, [1, state_size])
 				total_reward = 0
 				for time in range(TIME_STEPS):
+					# Render environment for visualization. Uncomment if needed.
 					# env.render()
 					action = self.act(state)
 					next_state, reward, done, _ = env.step(action)
-					reward = reward if not done else -10
+					reward = reward if not done else -10 # Add a negative reward if failed
 					next_state = np.reshape(next_state, [1, state_size])
-					self.remember(state, action, reward, next_state, done)
+					self.remember(state, action, reward, next_state, done) # Save states for each time step
 					state = next_state
 					if done:
-						scores.append(time)
+						scores.append(time) # Calculate a score based on the time-steps reached
 						if trial%100 ==0:
 							print('Run:{} Trial:{}, Mean score over 100 trials: {}'.format(run,trial,np.mean(scores)))
 						break
@@ -110,7 +120,7 @@ class deepQNetwork:
 						success = 1
 						break
 				try:
-					mean_score = np.mean(scores)#[len(scores)-1]
+					mean_score = np.mean(scores)
 				except:
 					mean_score = 0
 				if success==1:
@@ -141,4 +151,4 @@ if __name__ == "__main__":
 	action_size = env.action_space.n
 	agent = deepQNetwork(state_size, action_size, envName)
 	agent.main()
-	print('---------Execution time: {} ------------'.format(datetime.now()-start_time))
+	print('---------Execution time: {} for Case {}------------'.format(datetime.now()-start_time,sys.argv[1]))

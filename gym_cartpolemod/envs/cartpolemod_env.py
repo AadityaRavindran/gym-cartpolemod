@@ -73,7 +73,7 @@ class CartPoleModEnv(gym.Env):
 		7 : self.np_random.normal(loc=0, scale=np.sqrt(0.20), size=(1,)), # 0.2 var sensor noise
 	}.get(x,1)
 
-	def _seed(self, seed=None):
+	def _seed(self, seed=None): # Set appropriate seed value
 		self.np_random, seed = seeding.np_random(seed)
 		return [seed]
 
