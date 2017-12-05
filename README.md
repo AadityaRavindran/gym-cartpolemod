@@ -48,7 +48,7 @@ Noise cases(v0 to v6):
 - v5: 0.1 var Gaussian Sensor noise
 - v6: 0.2 var Gaussian Sensor noise
 
-Note that the sensor noise is added to the angle theta alone, and the actuator noise is added to the force.
+Note: The sensor noise is added to the angle, theta alone, and the actuator noise is added to the force.
 
 Some Neural network parameters:
 - Discount rate     : gamma = 0.95
@@ -82,7 +82,7 @@ Notations:
 |v3|5% Uniform Sensor Noise|100%|123.93|~ 5.5 hours|
 |v4|10% Uniform Sensor Noise|100%|133.67|~ 5.5 hours|
 |v5|σ^2 = 0.1 Gaussian Sensor Noise|100%|179.36|~ 6.5 hours|
-|v6|σ^2 = 0.2 Gaussian Sensor Noise|98%|209.68|~ 7.5 hours|
+|v6|σ^2 = 0.2 Gaussian Sensor Noise|98%|209.59|~ 8 hours|
 
 ## The team
 - Aaditya Ravindran
